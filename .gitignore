@@ -300,3 +300,6 @@ __pycache__/
 !/TrafficMonitor/language/*.ini
 *.diagsession
 enc_temp*
+
+# DSH 改动前的自动备份目录（本机临时用，不进仓库）
+.dsh-backup-*/

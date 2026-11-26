@@ -31,6 +31,7 @@ BEGIN_MESSAGE_MAP(CTrafficMonitorApp, CWinApp)
     ON_COMMAND(ID_HELP, &CTrafficMonitorApp::OnHelp)
     ON_COMMAND(ID_FREQUENTY_ASKED_QUESTIONS, &CTrafficMonitorApp::OnFrequentyAskedQuestions)
     ON_COMMAND(ID_UPDATE_LOG, &CTrafficMonitorApp::OnUpdateLog)
+    ON_COMMAND(ID_RESTART_APP, &CTrafficMonitorApp::OnAppRestart)
 END_MESSAGE_MAP()
 
 
@@ -67,7 +68,6 @@ void CTrafficMonitorApp::LoadConfig()
     CSettingsHelper ini;
 
     //常规设置
-    m_general_data.check_update_when_start = ini.GetBool(_T("general"), _T("check_update_when_start"), true);
     //m_general_data.allow_skin_cover_font = ini.GetBool(_T("general"), _T("allow_skin_cover_font"), true);
     //m_general_data.allow_skin_cover_text = ini.GetBool(_T("general"), _T("allow_skin_cover_text"), true);
     m_general_data.show_all_interface = ini.GetBool(L"general", L"show_all_interface", false);
@@ -292,7 +292,6 @@ void CTrafficMonitorApp::SaveConfig()
     CSettingsHelper ini;
 
     //常规设置
-    ini.WriteBool(_T("general"), _T("check_update_when_start"), m_general_data.check_update_when_start);
     //ini.WriteBool(_T("general"), _T("allow_skin_cover_font"), m_general_data.allow_skin_cover_font);
     //ini.WriteBool(_T("general"), _T("allow_skin_cover_text"), m_general_data.allow_skin_cover_text);
     ini.WriteString(_T("general"), _T("language"), m_general_data.language.toConfigString());
@@ -527,97 +526,6 @@ void CTrafficMonitorApp::DPIFromWindow(CWnd* pWnd)
     CWindowDC dc(pWnd);
     HDC hDC = dc.GetSafeHdc();
     m_dpi = GetDeviceCaps(hDC, LOGPIXELSY);
-}
-
-void CTrafficMonitorApp::CheckUpdate(bool message)
-{
-    if (m_checking_update)      //如果还在检查更新，则直接返回
-        return;
-    CFlagLocker update_locker(m_checking_update);
-    CWaitCursor wait_cursor;
-
-    wstring version;        //程序版本
-    wstring link;           //下载链接
-    wstring contents_zh_cn; //更新内容（简体中文）
-    wstring contents_en;    //更新内容（English）
-    wstring contents_zh_tw; //更新内容（繁体中文）
-    CUpdateHelper update_helper;
-    update_helper.SetUpdateSource(static_cast<CUpdateHelper::UpdateSource>(m_general_data.update_source));
-    if (!update_helper.CheckForUpdate())
-    {
-        if (message)
-            AfxMessageBox(CCommon::LoadText(IDS_CHECK_UPDATE_FAILD), MB_OK | MB_ICONWARNING);
-        return;
-    }
-    version = update_helper.GetVersion();
-#ifdef _M_X64
-    link = update_helper.GetLink64();
-#elif defined _M_ARM64EC
-    link = update_helper.GetLinkArm64ec();
-#else
-    link = update_helper.GetLink();
-#endif
-    contents_zh_cn = update_helper.GetContentsZhCn();
-    contents_en = update_helper.GetContentsEn();
-    contents_zh_tw = update_helper.GetContentsZhTw();
-    if (version.empty() || link.empty())
-    {
-        if (message)
-        {
-            CString info = CCommon::LoadText(IDS_CHECK_UPDATE_ERROR);
-            info += _T("\r\nrow_data=");
-            info += std::to_wstring(update_helper.IsRowData()).c_str();
-
-            AfxMessageBox(info, MB_OK | MB_ICONWARNING);
-        }
-        return;
-    }
-    if (version > VERSION)      //如果服务器上的版本大于本地版本
-    {
-        CString info;
-        //根据语言设置选择对应语言版本的更新内容
-        wstring language_tag = m_str_table.GetLanguageInfo().bcp_47;
-        wstring contents_lan;
-        if (language_tag == L"zh-CN")
-            contents_lan = contents_zh_cn;
-        else if (language_tag == L"zh-TW")
-            contents_lan = contents_zh_tw;
-        else
-            contents_lan = contents_en;
-        if (contents_lan.empty())
-            info.Format(CCommon::LoadText(IDS_UPDATE_AVLIABLE), version.c_str());
-        else
-            info.Format(CCommon::LoadText(IDS_UPDATE_AVLIABLE2), version.c_str(), contents_lan.c_str());
-
-        if (AfxMessageBox(info, MB_YESNO | MB_ICONQUESTION) == IDYES)
-        {
-            ShellExecute(NULL, _T("open"), link.c_str(), NULL, NULL, SW_SHOW);      //转到下载链接
-        }
-    }
-    else
-    {
-        if (message)
-            AfxMessageBox(CCommon::LoadText(IDS_ALREADY_UPDATED), MB_OK | MB_ICONINFORMATION);
-    }
-}
-
-void CTrafficMonitorApp::CheckUpdateInThread(bool message)
-{
-    AfxBeginThread(CheckUpdateThreadFunc, (LPVOID)message);
-}
-
-UINT CTrafficMonitorApp::CheckUpdateThreadFunc(LPVOID lpParam)
-{
-    CCommon::SetThreadLanguage(theApp.m_general_data.language.language_id);     //设置线程语言
-#ifndef _DEBUG      //DEBUG下不在启动时检查更新
-    theApp.CheckUpdate(lpParam);        //检查更新
-#endif
-    //检测插件更新
-    if (!theApp.m_plugins.GetPlugins().empty())
-    {
-        theApp.m_plugin_update.CheckForUpdate();
-    }
-    return 0;
 }
 
 UINT CTrafficMonitorApp::InitOpenHardwareMonitorLibThreadFunc(LPVOID lpParam)
@@ -1063,12 +971,6 @@ BOOL CTrafficMonitorApp::InitInstance()
     // 例如修改为公司或组织名
     //SetRegistryKey(_T("应用程序向导生成的本地应用程序"));        //暂不使用注册表保存数据
 
-    //启动时检查更新
-    if (m_general_data.check_update_when_start)
-    {
-        CheckUpdateInThread(false);
-    }
-
 #ifndef WITHOUT_TEMPERATURE
     //检测是否安装.net framework 4.5
     if (!CWindowsSettingHelper::IsDotNetFramework4Point5Installed())
@@ -1381,6 +1283,24 @@ void CTrafficMonitorApp::OnUpdateLog()
     CString url;
     url.Format(_T("https://%s/zhongyang219/TrafficMonitor/blob/master/UpdateLog/%s"), url_domain.GetString(), file_name.GetString());
     ShellExecute(NULL, _T("open"), url, NULL, NULL, SW_SHOW);
+}
+
+
+void CTrafficMonitorApp::OnAppRestart()
+{
+    // 获取当前程序完整路径
+    wchar_t exe_path[MAX_PATH]{};
+    if (::GetModuleFileName(nullptr, exe_path, MAX_PATH) == 0)
+        return;
+
+    // 先延时约 1 秒再启动新实例，等当前实例完全退出，避免被单实例检测拦截
+    CString cmd_args;
+    cmd_args.Format(_T("/c ping -n 2 127.0.0.1 > nul & start \"\" \"%s\""), exe_path);
+    ::ShellExecute(nullptr, _T("open"), _T("cmd.exe"), cmd_args, nullptr, SW_HIDE);
+
+    // 关闭主窗口，走正常退出流程（保存配置等）
+    if (m_pMainWnd != nullptr)
+        m_pMainWnd->SendMessage(WM_CLOSE);
 }
 
 

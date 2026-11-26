@@ -124,10 +124,6 @@ public:
     int GetDpi() const { return m_dpi; }
     void SetDPI(int dpi) { m_dpi = dpi; }
 
-    void CheckUpdate(bool message);     //检查更新，如果message为true，则在检查时弹出提示信息
-    void CheckUpdateInThread(bool message); //在后台线程中检查更新
-    //启动时检查更新线程函数
-    static UINT CheckUpdateThreadFunc(LPVOID lpParam);
     static UINT InitOpenHardwareMonitorLibThreadFunc(LPVOID lpParam);
 
     bool SetAutoRun(bool auto_run, bool task_scheduler);
@@ -147,7 +143,6 @@ public:
 
     void AutoSelectNotifyIcon();
 
-    bool IsCheckingForUpdate() const { return m_checking_update; }      //是否正在检查更新
 
     void InitOpenHardwareLibInThread();     //开启一个后台线程初始化OpenHardwareMonitor
     void UpdateOpenHardwareMonitorEnableState();    //更新硬件监控的启用/禁用状态
@@ -178,7 +173,6 @@ private:
     bool m_exit_when_start_by_restart_manager{ true };      //如果程序被Windows重启管理器重新启动，则退出程序
     int m_dpi{ 96 };
 
-    bool m_checking_update{ false };        //是否正在检查更新
 
     std::map<UINT, HICON> m_menu_icons;      //菜单图标资源。key是图标资源的ID，vlaue是图标的句柄
 
@@ -197,6 +191,7 @@ public:
     afx_msg void OnHelp();
     afx_msg void OnFrequentyAskedQuestions();
     afx_msg void OnUpdateLog();
+    afx_msg void OnAppRestart();
     virtual int ExitInstance();
 
     // 通过 ITrafficMonitor 继承

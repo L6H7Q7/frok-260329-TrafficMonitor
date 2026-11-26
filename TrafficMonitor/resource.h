@@ -108,7 +108,6 @@
 #define IDC_DONATE_PIC                  1018
 #define IDC_FONT_NAME_EDIT              1019
 #define IDC_FONT_SIZE_EDIT              1020
-#define IDC_STATIC_CHECK_UPDATE         1021
 #define IDC_SET_FONT_BUTTON             1021
 #define IDC_STATIC_DONATE               1022
 #define IDC_TEXT_COLOR_STATIC           1022
@@ -142,9 +141,7 @@
 #define IDC_STATIC_GITHUB               1043
 #define IDC_SPEED_SHORT_MODE_CHECK2     1043
 #define IDC_SET_LIGHT_MODE_BUTTON       1043
-#define IDC_CHECK_UPDATE_CHECK          1044
 #define IDC_STATIC_GITEE                1044
-#define IDC_CHECK_NOW_BUTTON            1045
 #define IDC_AUTO_RUN_CHECK              1046
 #define IDC_TASKBAR_WND_ON_LEFT_CHECK   1047
 #define IDC_HIDE_UNIT_CHECK             1049
@@ -421,7 +418,6 @@
 #define ID_32843                        32843
 #define ID_32844                        32844
 #define ID_32845                        32845
-#define ID_CHECK_UPDATE                 32846
 #define ID_SHOW_MAIN_WND                32847
 #define ID_DEFAULT_STYLE1               32848
 #define ID_DEFAULT_STYLE_MAX            32857
@@ -463,13 +459,14 @@
 #define ID_PLUGIN_COMMAND_START         33408
 #define ID_PLUGIN_COMMAND_MAX           33664
 #define ID_RESTORE_DEFAULT              33665
+#define ID_RESTART_APP                  33666
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        349
-#define _APS_NEXT_COMMAND_VALUE         33666
+#define _APS_NEXT_COMMAND_VALUE         33667
 #define _APS_NEXT_CONTROL_VALUE         1221
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -69,9 +69,6 @@ void CGeneralSettingsDlg::OnSettingsApplied()
 bool CGeneralSettingsDlg::InitializeControls()
 {
     RepositionTextBasedControls({
-        { CtrlTextInfo::L4, IDC_CHECK_NOW_BUTTON, CtrlTextInfo::W16 }
-        });
-    RepositionTextBasedControls({
         { CtrlTextInfo::L4, IDC_UPDATE_SORUCE_STATIC },
         { CtrlTextInfo::L3, IDC_GITHUB_RADIO },
         { CtrlTextInfo::L2, IDC_GITEE_RADIO }
@@ -219,8 +216,6 @@ void CGeneralSettingsDlg::SetControlEnable()
 
 
 BEGIN_MESSAGE_MAP(CGeneralSettingsDlg, CTabDlg)
-    ON_BN_CLICKED(IDC_CHECK_NOW_BUTTON, &CGeneralSettingsDlg::OnBnClickedCheckNowButton)
-    ON_BN_CLICKED(IDC_CHECK_UPDATE_CHECK, &CGeneralSettingsDlg::OnBnClickedCheckUpdateCheck)
     ON_BN_CLICKED(IDC_AUTO_RUN_CHECK, &CGeneralSettingsDlg::OnBnClickedAutoRunCheck)
     ON_BN_CLICKED(IDC_TODAY_TRAFFIC_TIP_CHECK, &CGeneralSettingsDlg::OnBnClickedTodayTrafficTipCheck)
     ON_BN_CLICKED(IDC_MEMORY_USAGE_TIP_CHECK, &CGeneralSettingsDlg::OnBnClickedMemoryUsageTipCheck)
@@ -262,7 +257,6 @@ BOOL CGeneralSettingsDlg::OnInitDialog()
 
     // TODO:  在此添加额外的初始化
 
-    ((CButton*)GetDlgItem(IDC_CHECK_UPDATE_CHECK))->SetCheck(m_data.check_update_when_start);
     if (theApp.IsForceShowNotifyIcon())
     {
         m_data.show_notify_icon = true;
@@ -455,20 +449,6 @@ BOOL CGeneralSettingsDlg::OnInitDialog()
 
     return TRUE;  // return TRUE unless you set the focus to a control
                   // 异常: OCX 属性页应返回 FALSE
-}
-
-
-void CGeneralSettingsDlg::OnBnClickedCheckNowButton()
-{
-    // TODO: 在此添加控件通知处理程序代码
-    theApp.CheckUpdateInThread(true);
-}
-
-
-void CGeneralSettingsDlg::OnBnClickedCheckUpdateCheck()
-{
-    // TODO: 在此添加控件通知处理程序代码
-    m_data.check_update_when_start = (IsDlgButtonChecked(IDC_CHECK_UPDATE_CHECK) != 0);
 }
 
 

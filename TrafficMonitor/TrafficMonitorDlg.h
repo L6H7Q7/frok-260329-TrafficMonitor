@@ -251,7 +251,6 @@ protected:
 public:
     afx_msg void OnChangeNotifyIcon();
     afx_msg void OnAlowOutOfBorder();
-    afx_msg void OnCheckUpdate();
 protected:
     afx_msg LRESULT OnTaskbarMenuPopedUp(WPARAM wParam, LPARAM lParam);
 public:
