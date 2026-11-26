@@ -48,15 +48,26 @@ C++ / Win32 / MFC 风格，Visual Studio 工程（`.sln` 在 `TrafficMonitor\` �
 
 ## 下次从哪接着做
 
-这轮改动已完成。**待确认**：`resource.h` 里相关的 `IDS_CHECK_UPDATE_*` 字符串资源，以及 `TXT_CHECK_UPDATE` 语言条目还残留着（无害但不清爽）；`UpdateHelper` 类如果已经没人调用，也可以考虑一并移除。
+这轮改动已**彻底完成**（功能移除 + 资源清理）。
+
+**有意保留、不要删的东西**：
+
+| 东西 | 为什么留着 |
+|---|---|
+| `CUpdateHelper` 类 | 仍被 `TrafficMonitor.cpp` 用来判断更新源（GitHub / Gitee），帮助菜单要靠它决定打开哪个站点 |
+| `CPluginUpdateHelper` | 插件更新检查，和「程序更新检查」是两套独立机制 |
+| `TXT_UPDATE_SOURCE` | 设置页「更新源」单选按钮还在用 |
 
 要接着做，先 `git status` 确认干净，再谈新功能。
 
-## 已知的小问题
+## 清理记录（2026-11-26）
 
-- 语言文件里 `TXT_CHECK_UPDATE` 仍存在，但界面上已经没有这个菜单项了
-- `.rc` 里可能还有 `IDS_CHECK_UPDATE_FAILD` / `IDS_ALREADY_UPDATED` / `IDS_UPDATE_AVLIABLE` 等字符串资源
-- `.dsh-backup-20261120-003528\` 是那轮改动的备份目录，已加入 `.gitignore`，确认无用后可删
+| 提交 | 内容 |
+|---|---|
+| `0b23095` | 移除自动检查更新功能，新增「重启程序」菜单（14 个文件，+93/−144） |
+| `9948e15` | 清除 19 个文件里的死条目：5 个 `IDS_*` 键、`TXT_CHECK_UPDATE`、`TXT_CHECK_NOW`（+6/−155），全项目 0 残留 |
+
+`.dsh-backup-20261120-003528\` 是那轮改动的备份目录，已加入 `.gitignore`，确认无用后可删。
 
 ## 相关历史对话
 
